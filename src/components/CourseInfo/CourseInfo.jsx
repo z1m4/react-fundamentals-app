@@ -23,52 +23,78 @@
 // * use selectors from store/selectors.js to get coursesList, authorsList from store
 
 import React from "react";
-
 import { formatCreationDate, getCourseDuration } from "../../helpers";
-
+import { Button } from "../../common/Button/Button";
 import styles from "./styles.module.css";
 
-// props description
-// * 'coursesList' - list of all courses. You need it to get chosen course from the list
-// * 'authorsList' - list of all authors. You need it to get authors' names for chosen course
-// * 'showCourseId' - id of chosen course. Use it to find needed course on the 'coursesList'.
 export const CourseInfo = ({
   coursesList,
   authorsList,
-  onBack,
   showCourseId,
+  onBack,
 }) => {
-  // write your code here
+  const course = coursesList.find((course) => course.id === showCourseId);
+
+  if (!course) {
+    return <p>Course not found.</p>;
+  }
+
+  const courseAuthors = course.authors
+    .map((authorId) => {
+      const author = authorsList.find((author) => author.id === authorId);
+      return author ? author.name : null;
+    })
+    .filter(Boolean);
 
   return (
     <div className={styles.container} data-testid="courseInfo">
-      <h1>Course title</h1>
-      <div className={styles.courseInfo}>
-        <p className={styles.description}>Course description</p>
-        <div>
-          <p>
-            <b>ID: </b>
-            id
-          </p>
-          <p>
-            <b>Duration: </b>
-            duration (use getCourseDuration)
-          </p>
-          <p>
-            <b>Created: </b>
-            creation date (use formatCreationDate)
-          </p>
-          <div>
-            <b>Authors</b>
-            <ul className={styles.authorsList}>
-              //use '.map' to render authors list with 'li' tag
-            </ul>
+      <div className={styles.header}>
+        <h1>{course.title}</h1>
+      </div>
+
+      <div className={styles.content}>
+        <div className={styles.leftColumn}>
+          <p className={styles.description}>{course.description}</p>
+        </div>
+
+        <div className={styles.rightColumn}>
+          <div className={styles.metaData}>
+            <p>
+              <span className={styles.label}>ID:</span>
+              <span>{course.id}</span>
+            </p>
+            <p>
+              <span className={styles.label}>Duration:</span>
+              <span>{getCourseDuration(course.duration)}</span>
+            </p>
+            <p>
+              <span className={styles.label}>Created:</span>
+              <span>{formatCreationDate(course.creationDate)}</span>
+            </p>
+
+            <div className={styles.authorsSection}>
+              <p className={styles.label}>Authors:</p>
+              <ul className={styles.authorsList}>
+                {courseAuthors.length > 0 ? (
+                  courseAuthors.map((name, index) => (
+                    <li key={index}>{name}</li>
+                  ))
+                ) : (
+                  <li>No authors available</li>
+                )}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-      // Module 1: reuse Button component for 'onBack' functionality // Module
-      2: use 'react-router-dom' 'Link' component for button 'Back' and remove
-      'onBack' prop
+
+      <div className={styles.footer}>
+        <Button
+          buttonText="Back to courses"
+          handleClick={onBack}
+          data-testid="backButton"
+        />
+      </div>
     </div>
   );
 };

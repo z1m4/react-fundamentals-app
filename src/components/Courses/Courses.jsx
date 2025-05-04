@@ -1,7 +1,3 @@
-import React from "react";
-
-import styles from "./styles.module.css";
-
 // Module 1:
 // * render list of components using 'CourseCard' component for each course
 // * render 'ADD NEW COURSE' button (reuse Button component)
@@ -32,18 +28,55 @@ import styles from "./styles.module.css";
 //   ** Courses should display amount of CourseCard equal length of courses array.
 //   ** CourseForm should be shown after a click on the "Add new course" button.
 
-export const Courses = ({ coursesList, authorsList, handleShowCourse }) => {
-  // write your code here
+import React from "react";
+import { Button } from "../../common";
+import { CourseCard } from "./components/CourseCard/CourseCard";
+import styles from "./styles.module.css";
 
-  // for EmptyCourseList component container use data-testid="emptyContainer" attribute
-  // for button in EmptyCourseList component add data-testid="addCourse" attribute
+export const Courses = ({
+  coursesList,
+  authorsList,
+  handleShowCourse,
+  onAddCourse,
+}) => {
+  const EmptyCourseList = () => (
+    <div className={styles.emptyContainer} data-testid="emptyContainer">
+      <h2 className={styles.emptyTitle}>Your List Is Empty</h2>
+      <p className={styles.emptyText}>
+        Please use "Add New Course" button to add your first course.
+      </p>
+      <Button
+        buttonText="Add new course"
+        onClick={onAddCourse}
+        data-testid="addCourseEmpty"
+      />
+    </div>
+  );
 
   return (
-    <>
+    <div className={styles.container}>
       <div className={styles.panel}>
-        // reuse Button component for 'ADD NEW COURSE' button
+        <Button
+          buttonText="ADD NEW COURSE"
+          onClick={onAddCourse}
+          data-testid="addCourse"
+        />
       </div>
-      // use '.map' array method to render all courses. Use CourseCard component
-    </>
+
+      <div className={styles.coursesGrid}>
+        {coursesList.length === 0 ? (
+          <EmptyCourseList />
+        ) : (
+          coursesList.map((course) => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              authorsList={authorsList}
+              handleShowCourse={handleShowCourse}
+            />
+          ))
+        )}
+      </div>
+    </div>
   );
 };

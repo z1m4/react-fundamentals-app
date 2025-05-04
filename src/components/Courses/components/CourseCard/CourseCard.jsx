@@ -36,44 +36,53 @@
 //   ** CourseCard should display created date in the correct format.
 
 import React from "react";
-
 import { getCourseDuration, formatCreationDate } from "../../../../helpers";
-
 import deleteIcon from "../../../../assets/deleteButtonIcon.svg";
 import editIcon from "../../../../assets/editButtonIcon.svg";
-
+import { Button } from "../../../../common/Button/Button";
 import styles from "./styles.module.css";
 
 export const CourseCard = ({ course, handleShowCourse, authorsList }) => {
-  // write your code here
+  const { title, description, duration, creationDate, authors } = course;
+
+  const courseAuthors = authors
+    .map((id) => authorsList.find((a) => a.id === id)?.name)
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div className={styles.cardContainer} data-testid="courseCard">
       <div className={styles.cardText}>
-        <h2>Title</h2>
-        <p>Description</p>
+        <h2>{title}</h2>
+        <p>{description}</p>
       </div>
       <div className={styles.cardDetails}>
         <p>
           <b>Authors: </b>
-          authors list
+          <span className={styles.authorsList}>{courseAuthors}</span>
         </p>
         <p>
-          <b>Duration:</b>
-          <span>duration</span>
+          <b>Duration:</b> <span>{getCourseDuration(duration)}</span>
         </p>
         <p>
           <b>Created: </b>
-          <span>date</span>
+          <span>{formatCreationDate(creationDate)}</span>
         </p>
         <div className={styles.buttonsContainer}>
-          {/* 
-				reuse Button component for 'Show course' button 
-				reuse Button	component with deleteButtonIcon from 'src/assets' for 'Delete' button
-						with data-testid="deleteCourse" 
-				reuse Button component wrapped with Link from react-router with editButtonIcon from 'src/assets' for 'Update' button with
-						data-testid="updateCourse" 
-			*/}
+          <Button
+            buttonText="Show course"
+            handleClick={() => handleShowCourse(course.id)}
+          />
+          <Button
+            icon={deleteIcon}
+            data-testid="deleteCourse"
+            handleClick={() => console.log("delete", course.id)}
+          />
+          <Button
+            icon={editIcon}
+            data-testid="updateCourse"
+            handleClick={() => console.log("edit", course.id)}
+          />
         </div>
       </div>
     </div>

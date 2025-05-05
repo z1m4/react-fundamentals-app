@@ -23,78 +23,53 @@
 // * use selectors from store/selectors.js to get coursesList, authorsList from store
 
 import React from "react";
+import { useParams, Link } from "react-router-dom";
 import { formatCreationDate, getCourseDuration } from "../../helpers";
-import { Button } from "../../common/Button/Button";
+
 import styles from "./styles.module.css";
 
-export const CourseInfo = ({
-  coursesList,
-  authorsList,
-  showCourseId,
-  onBack,
-}) => {
-  const course = coursesList.find((course) => course.id === showCourseId);
+export const CourseInfo = ({ coursesList, authorsList }) => {
+  const { courseId } = useParams();
+  const course = coursesList.find((course) => course.id === courseId);
 
-  if (!course) {
-    return <p>Course not found.</p>;
-  }
+  if (!course) return <p>Course not found</p>;
 
   const courseAuthors = course.authors
-    .map((authorId) => {
-      const author = authorsList.find((author) => author.id === authorId);
-      return author ? author.name : null;
-    })
-    .filter(Boolean);
+    .map((id) => authorsList.find((author) => author.id === id))
+    .filter(Boolean)
+    .map((author) => author.name);
 
   return (
     <div className={styles.container} data-testid="courseInfo">
-      <div className={styles.header}>
-        <h1>{course.title}</h1>
-      </div>
-
-      <div className={styles.content}>
-        <div className={styles.leftColumn}>
-          <p className={styles.description}>{course.description}</p>
-        </div>
-
-        <div className={styles.rightColumn}>
-          <div className={styles.metaData}>
-            <p>
-              <span className={styles.label}>ID:</span>
-              <span>{course.id}</span>
-            </p>
-            <p>
-              <span className={styles.label}>Duration:</span>
-              <span>{getCourseDuration(course.duration)}</span>
-            </p>
-            <p>
-              <span className={styles.label}>Created:</span>
-              <span>{formatCreationDate(course.creationDate)}</span>
-            </p>
-
-            <div className={styles.authorsSection}>
-              <p className={styles.label}>Authors:</p>
-              <ul className={styles.authorsList}>
-                {courseAuthors.length > 0 ? (
-                  courseAuthors.map((name, index) => (
-                    <li key={index}>{name}</li>
-                  ))
-                ) : (
-                  <li>No authors available</li>
-                )}
-              </ul>
-            </div>
+      <h1>{course.title}</h1>
+      <div className={styles.courseInfo}>
+        <p className={styles.description}>{course.description}</p>
+        <div>
+          <p>
+            <b>ID: </b>
+            {course.id}
+          </p>
+          <p>
+            <b>Duration: </b>
+            {getCourseDuration(course.duration)}
+          </p>
+          <p>
+            <b>Created: </b>
+            {formatCreationDate(course.creationDate)}
+          </p>
+          <div>
+            <b>Authors</b>
+            <ul className={styles.authorsList}>
+              {courseAuthors.map((name, index) => (
+                <li key={index}>{name}</li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
-
-      <div className={styles.footer}>
-        <Button
-          buttonText="Back to courses"
-          handleClick={onBack}
-          data-testid="backButton"
-        />
-      </div>
+      <Link to="/courses" className={styles.backLink}>
+        Back to courses
+      </Link>
     </div>
   );
 };

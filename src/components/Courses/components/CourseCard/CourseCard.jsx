@@ -36,53 +36,39 @@
 //   ** CourseCard should display created date in the correct format.
 
 import React from "react";
+import { Link } from "react-router-dom";
 import { getCourseDuration, formatCreationDate } from "../../../../helpers";
-import deleteIcon from "../../../../assets/deleteButtonIcon.svg";
-import editIcon from "../../../../assets/editButtonIcon.svg";
-import { Button } from "../../../../common/Button/Button";
 import styles from "./styles.module.css";
+import { Button } from "../../../../common";
 
-export const CourseCard = ({ course, handleShowCourse, authorsList }) => {
-  const { title, description, duration, creationDate, authors } = course;
-
-  const courseAuthors = authors
-    .map((id) => authorsList.find((a) => a.id === id)?.name)
-    .filter(Boolean)
-    .join(", ");
-
+export const CourseCard = ({ course, authorsList }) => {
   return (
     <div className={styles.cardContainer} data-testid="courseCard">
       <div className={styles.cardText}>
-        <h2>{title}</h2>
-        <p>{description}</p>
+        <h2>{course.title}</h2>
+        <p>{course.description}</p>
       </div>
       <div className={styles.cardDetails}>
         <p>
           <b>Authors: </b>
-          <span className={styles.authorsList}>{courseAuthors}</span>
+          {course.authors
+            .map((id) => {
+              const author = authorsList.find((a) => a.id === id);
+              return author ? author.name : "Unknown Author";
+            })
+            .join(", ")}
         </p>
         <p>
-          <b>Duration:</b> <span>{getCourseDuration(duration)}</span>
+          <b>Duration:</b> <span>{getCourseDuration(course.duration)}</span>
         </p>
         <p>
           <b>Created: </b>
-          <span>{formatCreationDate(creationDate)}</span>
+          <span>{formatCreationDate(course.creationDate)}</span>
         </p>
         <div className={styles.buttonsContainer}>
-          <Button
-            buttonText="Show course"
-            handleClick={() => handleShowCourse(course.id)}
-          />
-          <Button
-            icon={deleteIcon}
-            data-testid="deleteCourse"
-            handleClick={() => console.log("delete", course.id)}
-          />
-          <Button
-            icon={editIcon}
-            data-testid="updateCourse"
-            handleClick={() => console.log("edit", course.id)}
-          />
+          <Link to={`/courses/${course.id}`} className={styles.noUnderline}>
+            <Button buttonText="SHOW COURSE" />
+          </Link>
         </div>
       </div>
     </div>

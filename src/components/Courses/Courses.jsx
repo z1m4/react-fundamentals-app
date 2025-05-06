@@ -28,50 +28,42 @@
 //   ** Courses should display amount of CourseCard equal length of courses array.
 //   ** CourseForm should be shown after a click on the "Add new course" button.
 
-import React, { useEffect } from "react";
-import styles from "./styles.module.css";
-import { Button } from "../../common";
+import React from "react";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { Button } from "../../common/Button/Button";
 import { CourseCard } from "./components";
-import { Link, useNavigate } from "react-router-dom";
+import styles from "./styles.module.css";
 
-export const Courses = ({ coursesList, authorsList }) => {
-  const navigate = useNavigate();
+export const Courses = () => {
+  const courses = useSelector((state) => state.courses);
+  const user = useSelector((state) => state.user);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
-  if (coursesList.length === 0) {
-    return <EmptyCourseList />;
+  if (!courses || courses.length === 0) {
+    return (
+      <div className={styles.emptyContainer}>
+        <h2>Your List Is Empty</h2>
+        <Link to="/courses/add" className={styles.noUnderline}>
+          <Button buttonText="Add new course" data-testid="addCourse" />
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className={styles.panel}>
-        <Link to="/courses/add" className={styles.noUnderline}>
-          <Button buttonText="ADD NEW COURSE" data-testid="addCourse" />
-        </Link>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1>Courses</h1>
+        {user?.isAuth && (
+          <Link to="/courses/add" className={styles.noUnderline}>
+            <Button buttonText="Add new course" data-testid="addCourse" />
+          </Link>
+        )}
       </div>
-
-      {coursesList.map((course) => (
-        <CourseCard key={course.id} course={course} authorsList={authorsList} />
-      ))}
-    </>
-  );
-};
-
-const EmptyCourseList = () => {
-  return (
-    <div className={styles.empty} data-testid="emptyContainer">
-      <h2>Your List Is Empty</h2>
-      <p>Please use "add new course" button to add your first course</p>
-      <div className={styles.buttonContainer}>
-        <Link to="/courses/add" className={styles.noUnderline}>
-          <Button buttonText="ADD NEW COURSE" data-testid="addCourse" />
-        </Link>
+      <div className={styles.courseList}>
+        {courses.map((course) => (
+          <CourseCard key={course.id} course={course} />
+        ))}
       </div>
     </div>
   );

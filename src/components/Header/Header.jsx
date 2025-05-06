@@ -28,35 +28,30 @@
 //   ** Header should have logo and user's name.
 
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import styles from "./styles.module.css";
 import { Logo } from "./components";
 import { Button } from "../../common";
-
-import styles from "./styles.module.css";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserNameSelector } from "../../store/selectors";
+import { removeUserData } from "../../store/slices/userSlice";
 
 export const Header = () => {
+  const dispatch = useDispatch();
+  const userName = useSelector(getUserNameSelector);
   const token = localStorage.getItem("token");
-  const location = useLocation();
-  const navigate = useNavigate();
 
-  const isAuthPage = ["/login", "/registration"].includes(location.pathname);
-
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
     localStorage.removeItem("token");
-    navigate("/login");
+    dispatch(removeUserData());
   };
 
   return (
     <div className={styles.headerContainer}>
       <Logo />
-      {token && !isAuthPage && (
+      {token && (
         <div className={styles.userContainer}>
-          <p className={styles.userName}>User</p>
-          <Button
-            buttonText="LOGOUT"
-            handleClick={handleLogout}
-            data-testid="logoutButton"
-          />
+          <p className={styles.userName}>{userName}</p>
+          <Button buttonText="LOGOUT" handleClick={handleLogoutClick} />
         </div>
       )}
     </div>

@@ -19,14 +19,18 @@
 // * use 'setUserData' from 'userSlice.js' to add user's data to store. (DO NOT use 'user/me' [GET] request)
 
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
+import { login } from "../../services";
+import { setUserData } from "../../store/slices/userSlice";
 import styles from "./styles.module.css";
 import { Input } from "../../common/Input/Input";
 import { Button } from "../../common/Button/Button";
-import { login } from "../../services";
 
-export const Login = ({ setToken, setUserName }) => {
+export const Login = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
 
@@ -48,15 +52,19 @@ export const Login = ({ setToken, setUserName }) => {
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      const data = await login(formData);
+      const response = await login(formData);
 
-      localStorage.setItem("token", data.result);
-      localStorage.setItem("userName", data.user.name);
-      setToken(data.result);
-      setUserName(data.user.name);
-      navigate("/courses");
-    } catch (err) {
-      alert(err.message || "Something went wrong");
+      if (response.successful) {
+        const { name, email } = response.user;
+        localStorage.setItem("token", response.result);
+        dispatch(setUserData({ name, email, token: response.result }));
+        navigate("/");
+      } else {
+        alert("Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong");
     }
   };
 

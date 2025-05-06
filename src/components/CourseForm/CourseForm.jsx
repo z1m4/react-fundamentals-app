@@ -46,24 +46,29 @@
 //   **  CourseForm 'Add author' button click should add an author to the course authors list.
 //   **  CourseForm 'Delete author' button click should delete an author from the course list.
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
 import { Input, Button } from "../../common";
 import { getCourseDuration } from "../../helpers";
 import { AuthorItem } from "./components/AuthorItem/AuthorItem";
 import { CreateAuthor } from "./components";
+import { useDispatch, useSelector } from "react-redux";
+import { getAuthorsSelector } from "../../store/selectors";
+import { saveCourse } from "../../store/slices/coursesSlice";
 
-export const CourseForm = ({ authorsList, createCourse, createAuthor }) => {
+export const CourseForm = () => {
+  const dispatch = useDispatch();
+  const authorsList = useSelector(getAuthorsSelector);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [duration, setDuration] = useState("");
-  const [availableAuthors, setAvailableAuthors] = useState(authorsList);
+  const [availableAuthors, setAvailableAuthors] = useState([]);
   const [courseAuthors, setCourseAuthors] = useState([]);
 
-  const handleCreateAuthor = (newAuthor) => {
-    setAvailableAuthors([...availableAuthors, newAuthor]);
-    createAuthor(newAuthor);
-  };
+  useEffect(() => {
+    setAvailableAuthors(authorsList);
+  }, [authorsList]);
 
   const handleCreateCourse = (e) => {
     e.preventDefault();
@@ -79,15 +84,14 @@ export const CourseForm = ({ authorsList, createCourse, createAuthor }) => {
     }
 
     const newCourse = {
-      id: String(Date.now()),
       title,
       description,
-      creationDate: new Date().toLocaleDateString("en-GB"),
       duration: Number(duration),
       authors: courseAuthors.map((a) => a.id),
     };
 
-    createCourse(newCourse);
+    dispatch(saveCourse(newCourse));
+
     setTitle("");
     setDescription("");
     setDuration("");
@@ -150,20 +154,18 @@ export const CourseForm = ({ authorsList, createCourse, createAuthor }) => {
             </div>
 
             <h3>Authors</h3>
-            <CreateAuthor onCreateAuthor={handleCreateAuthor} />
+            <CreateAuthor />
 
-            <div>
-              <h4 className={styles.subTitle}>Authors List</h4>
-              {availableAuthors.map((author) => (
-                <AuthorItem
-                  key={author.id}
-                  name={author.name}
-                  buttonText="Add author"
-                  onClick={() => addAuthorToCourse(author)}
-                  testId="addAuthor"
-                />
-              ))}
-            </div>
+            <h4 className={styles.subTitle}>Authors List</h4>
+            {availableAuthors.map((author) => (
+              <AuthorItem
+                key={author.id}
+                name={author.name}
+                buttonText="Add author"
+                onClick={() => addAuthorToCourse(author)}
+                testId="addAuthor"
+              />
+            ))}
           </div>
 
           <div className={styles.rightColumn}>
@@ -176,6 +178,7 @@ export const CourseForm = ({ authorsList, createCourse, createAuthor }) => {
                   buttonText="Delete author"
                   onClick={() => removeAuthorFromCourse(author)}
                   testId="deleteAuthor"
+                  isRemovable
                 />
               ))
             ) : (

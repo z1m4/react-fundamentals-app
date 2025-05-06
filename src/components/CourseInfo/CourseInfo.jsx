@@ -23,21 +23,28 @@
 // * use selectors from store/selectors.js to get coursesList, authorsList from store
 
 import React from "react";
+import { useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
+import { getCoursesSelector, getAuthorsSelector } from "../../store/selectors";
 import { formatCreationDate, getCourseDuration } from "../../helpers";
-
 import styles from "./styles.module.css";
+import buttonStyles from "../../common/Button/styles.module.css";
 
-export const CourseInfo = ({ coursesList, authorsList }) => {
+export const CourseInfo = () => {
   const { courseId } = useParams();
-  const course = coursesList.find((course) => course.id === courseId);
+  const courses = useSelector(getCoursesSelector);
+  const authors = useSelector(getAuthorsSelector);
 
-  if (!course) return <p>Course not found</p>;
+  const course = courses.find((c) => c.id === courseId);
 
-  const courseAuthors = course.authors
-    .map((id) => authorsList.find((author) => author.id === id))
-    .filter(Boolean)
-    .map((author) => author.name);
+  if (!course) {
+    return <p data-testid="courseInfo">Course not found</p>;
+  }
+
+  const courseAuthors = course.authors.map((id) => {
+    const author = authors.find((a) => a.id === id);
+    return author ? author.name : "Unknown Author";
+  });
 
   return (
     <div className={styles.container} data-testid="courseInfo">
@@ -46,30 +53,29 @@ export const CourseInfo = ({ coursesList, authorsList }) => {
         <p className={styles.description}>{course.description}</p>
         <div>
           <p>
-            <b>ID: </b>
-            {course.id}
+            <b>ID:</b> {course.id}
           </p>
           <p>
-            <b>Duration: </b>
-            {getCourseDuration(course.duration)}
+            <b>Duration:</b> {getCourseDuration(course.duration)}
           </p>
           <p>
-            <b>Created: </b>
-            {formatCreationDate(course.creationDate)}
+            <b>Created:</b> {formatCreationDate(course.creationDate)}
           </p>
           <div>
-            <b>Authors</b>
+            <b>Authors:</b>
             <ul className={styles.authorsList}>
-              {courseAuthors.map((name, index) => (
-                <li key={index}>{name}</li>
+              {courseAuthors.map((name, idx) => (
+                <li key={idx}>{name}</li>
               ))}
             </ul>
           </div>
         </div>
       </div>
-      <Link to="/courses" className={styles.backLink}>
-        Back to courses
-      </Link>
+      <div className={styles.backButtonContainer}>
+        <Link to="/courses" className={buttonStyles.button}>
+          Back
+        </Link>
+      </div>
     </div>
   );
 };

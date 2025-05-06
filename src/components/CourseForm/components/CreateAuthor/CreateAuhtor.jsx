@@ -10,12 +10,15 @@
 // Remove 'onCreateAuthor' from props => use 'dispatch' and 'saveAuthor' from 'authorsSlice.js' to save new author to the store
 
 import React, { useState } from "react";
+import styles from "./styles.module.css";
 import { Input } from "../../../../common/Input/Input";
 import { Button } from "../../../../common/Button/Button";
-import styles from "./styles.module.css";
+import { useDispatch } from "react-redux";
+import { saveAuthor } from "../../../../store/slices/authorsSlice";
 
-export const CreateAuthor = ({ onCreateAuthor }) => {
+export const CreateAuthor = () => {
   const [authorName, setAuthorName] = useState("");
+  const dispatch = useDispatch();
 
   const handleCreate = () => {
     if (authorName.trim().length < 2) {
@@ -24,11 +27,10 @@ export const CreateAuthor = ({ onCreateAuthor }) => {
     }
 
     const newAuthor = {
-      id: String(Date.now()),
       name: authorName,
     };
 
-    onCreateAuthor(newAuthor);
+    dispatch(saveAuthor(newAuthor));
     setAuthorName("");
   };
 
